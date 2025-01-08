@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
 
 import '../widgets/custom_icon_button.dart';
 import '../widgets/custom_text_field.dart';
@@ -57,29 +58,36 @@ class _LoginScreenState extends State<LoginScreen> {
                     const SizedBox(
                       height: 16,
                     ),
-                    SizedBox(
-                      height: 44,
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          disabledBackgroundColor:
-                              Theme.of(context).primaryColor.withAlpha(100),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(32),
-                          ),
-                          backgroundColor: Theme.of(context).primaryColor,
-                        ),
-                        onPressed: () {
-                          Navigator.of(context).pushReplacement(
-                            MaterialPageRoute(
-                              builder: (context) => const ListScreen(),
+                    Observer(
+                      builder: (_) {
+                        return SizedBox(
+                          height: 44,
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              disabledBackgroundColor:
+                                  Theme.of(context).primaryColor.withAlpha(100),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(32),
+                              ),
+                              backgroundColor: Theme.of(context).primaryColor,
                             ),
-                          );
-                        },
-                        child: const Text(
-                          'Login',
-                          style: TextStyle(color: Colors.white),
-                        ),
-                      ),
+                            onPressed: loginStore.isFormValid
+                                ? () {
+                                    Navigator.of(context).pushReplacement(
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            const ListScreen(),
+                                      ),
+                                    );
+                                  }
+                                : null,
+                            child: const Text(
+                              'Login',
+                              style: TextStyle(color: Colors.white),
+                            ),
+                          ),
+                        );
+                      },
                     )
                   ],
                 ),

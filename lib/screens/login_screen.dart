@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:mobx/mobx.dart';
 
 import '../widgets/custom_icon_button.dart';
 import '../widgets/custom_text_field.dart';
@@ -15,6 +16,19 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   final loginStore = LoginStore();
+
+  late ReactionDisposer disposer;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    disposer = reaction((_) => loginStore.loginPressed, (loggedIn) {
+      if (loginStore.loggedIn) {
+        Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (_) => const ListScreen()));
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -43,18 +57,22 @@ class _LoginScreenState extends State<LoginScreen> {
                     const SizedBox(
                       height: 16,
                     ),
-                    CustomTextField(
-                      hint: 'Senha',
-                      prefix: const Icon(Icons.lock),
-                      obscure: true,
-                      onChanged: loginStore.setPassword,
-                      enabled: true,
-                      suffix: CustomIconButton(
-                        radius: 32,
-                        iconData: Icons.visibility,
-                        onTap: () {},
-                      ),
-                    ),
+                    Observer(builder: (_) {
+                      return CustomTextField(
+                        hint: 'Senha',
+                        prefix: const Icon(Icons.lock),
+                        obscure: loginStore.isPasswordObscured,
+                        onChanged: loginStore.setPassword,
+                        enabled: true,
+                        suffix: CustomIconButton(
+                          radius: 32,
+                          iconData: loginStore.isPasswordObscured
+                              ? Icons.visibility
+                              : Icons.visibility_off,
+                          onTap: loginStore.tooglePasswordVisibility,
+                        ),
+                      );
+                    }),
                     const SizedBox(
                       height: 16,
                     ),
@@ -71,20 +89,16 @@ class _LoginScreenState extends State<LoginScreen> {
                               ),
                               backgroundColor: Theme.of(context).primaryColor,
                             ),
-                            onPressed: loginStore.isFormValid
-                                ? () {
-                                    Navigator.of(context).pushReplacement(
-                                      MaterialPageRoute(
-                                        builder: (context) =>
-                                            const ListScreen(),
-                                      ),
-                                    );
-                                  }
-                                : null,
-                            child: const Text(
-                              'Login',
-                              style: TextStyle(color: Colors.white),
-                            ),
+                            onPressed: loginStore.loginPressed as VoidCallback?,
+                            child: loginStore.isLoading
+                                ? const CircularProgressIndicator(
+                                    valueColor:
+                                        AlwaysStoppedAnimation(Colors.white),
+                                  )
+                                : const Text(
+                                    'Login',
+                                    style: TextStyle(color: Colors.white),
+                                  ),
                           ),
                         );
                       },
@@ -95,5 +109,11 @@ class _LoginScreenState extends State<LoginScreen> {
         ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    disposer();
+    super.dispose();
   }
 }

@@ -5,23 +5,22 @@ part 'login_store.g.dart';
 class LoginStore = _LoginStoreBase with _$LoginStore;
 
 abstract class _LoginStoreBase with Store {
-  _LoginStoreBase() {
-    autorun((_) {
-      debugPrint("isFormValid: ${isFormValid}");
-    });
-  }
+  _LoginStoreBase() {}
 
   @observable
   String email = "";
 
-  @action
-  void setEmail(String value) => email = value;
+  @observable
+  bool isPasswordObscured = true;
 
   @observable
   String password = "";
 
-  @action
-  void setPassword(String value) => password = value;
+  @observable
+  bool isLoading = false;
+
+  @observable
+  bool loggedIn = false;
 
   @computed
   bool get _isEmailValid => RegExp(
@@ -33,4 +32,27 @@ abstract class _LoginStoreBase with Store {
 
   @computed
   bool get isFormValid => _isEmailValid && _isPasswordValid;
+
+  @computed
+  Function? get loginPressed =>
+      (_isEmailValid && _isPasswordValid && !isLoading) ? login : null;
+
+  @action
+  void setEmail(String value) => email = value;
+
+  @action
+  void setPassword(String value) => password = value;
+
+  @action
+  void tooglePasswordVisibility() => isPasswordObscured = !isPasswordObscured;
+
+  @action
+  Future<void> login() async {
+    isLoading = true;
+
+    await Future.delayed(const Duration(seconds: 2));
+
+    isLoading = false;
+    loggedIn = true;
+  }
 }

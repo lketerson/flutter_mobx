@@ -17,7 +17,7 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final loginStore = LoginStore();
 
-  late ReactionDisposer disposer;
+  late final ReactionDisposer disposer;
 
   @override
   void didChangeDependencies() {

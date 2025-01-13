@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:gerencia_estado_mobx/screens/stores/login_store.dart';
+import 'package:provider/provider.dart';
 
 import '../widgets/custom_icon_button.dart';
 import '../widgets/custom_text_field.dart';
@@ -15,6 +17,13 @@ class ListScreen extends StatefulWidget {
 
 class _ListScreenState extends State<ListScreen> {
   final ListStore listStore = ListStore();
+  final TextEditingController todoController = TextEditingController();
+  late final LoginStore loginStore;
+  @override
+  void initState() {
+    loginStore = Provider.of<LoginStore>(context, listen: false);
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -42,6 +51,7 @@ class _ListScreenState extends State<ListScreen> {
                       icon: const Icon(Icons.exit_to_app),
                       color: Colors.white,
                       onPressed: () {
+                        loginStore.logout();
                         Navigator.of(context).pushReplacement(MaterialPageRoute(
                             builder: (context) => const LoginScreen()));
                       },
@@ -62,6 +72,7 @@ class _ListScreenState extends State<ListScreen> {
                         Observer(
                           builder: (_) {
                             return CustomTextField(
+                              controller: todoController,
                               hint: 'Tarefa',
                               onChanged: listStore.setTodoTitle,
                               suffix: Visibility(
@@ -69,7 +80,10 @@ class _ListScreenState extends State<ListScreen> {
                                 child: CustomIconButton(
                                   radius: 32,
                                   iconData: Icons.add,
-                                  onTap: listStore.addTodo,
+                                  onTap: () {
+                                    listStore.addTodo();
+                                    todoController.clear();
+                                  },
                                 ),
                               ),
                             );
@@ -84,15 +98,27 @@ class _ListScreenState extends State<ListScreen> {
                               return ListView.separated(
                                 itemCount: listStore.todoList.length,
                                 itemBuilder: (_, index) {
-                                  return ListTile(
-                                    title: Text(
-                                      'Todo: ${listStore.todoList[index]}',
-                                    ),
-                                    onTap: () {},
-                                    trailing: IconButton(
-                                        onPressed: () =>
-                                            listStore.removeTodo(index),
-                                        icon: const Icon(Icons.delete)),
+                                  final todo = listStore.todoList[index];
+                                  return Observer(
+                                    builder: (_) {
+                                      return ListTile(
+                                        title: Text(
+                                          'Todo: ${todo.title}',
+                                          style: TextStyle(
+                                              decoration: todo.done
+                                                  ? TextDecoration.lineThrough
+                                                  : null,
+                                              color: todo.done
+                                                  ? Colors.grey
+                                                  : Colors.black),
+                                        ),
+                                        onTap: todo.toggleDone,
+                                        trailing: IconButton(
+                                            onPressed: () =>
+                                                listStore.removeTodo(index),
+                                            icon: const Icon(Icons.delete)),
+                                      );
+                                    },
                                   );
                                 },
                                 separatorBuilder: (_, __) {

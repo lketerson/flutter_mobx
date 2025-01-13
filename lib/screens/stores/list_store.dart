@@ -1,3 +1,4 @@
+import 'package:gerencia_estado_mobx/screens/stores/todo_store.dart';
 import 'package:mobx/mobx.dart';
 part 'list_store.g.dart';
 
@@ -7,11 +8,12 @@ abstract class ListStoreBase with Store {
   @observable
   String todoTitle = "";
 
-  ObservableList<String> todoList = ObservableList<String>();
+  ObservableList<TodoStore> todoList = ObservableList<TodoStore>();
 
   @action
   void addTodo() {
-    todoList.add(todoTitle);
+    todoList.insert(0, TodoStore(title: todoTitle));
+    todoTitle = '';
   }
 
   @action

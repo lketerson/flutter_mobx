@@ -1,5 +1,5 @@
-import 'package:flutter/material.dart';
 import 'package:mobx/mobx.dart';
+
 part 'login_store.g.dart';
 
 class LoginStore = _LoginStoreBase with _$LoginStore;
@@ -54,5 +54,12 @@ abstract class _LoginStoreBase with Store {
 
     isLoading = false;
     loggedIn = true;
+  }
+
+  @action
+  void logout() {
+    email = "";
+    password = "";
+    loggedIn = false;
   }
 }

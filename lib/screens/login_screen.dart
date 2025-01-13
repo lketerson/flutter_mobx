@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:mobx/mobx.dart';
+import 'package:provider/provider.dart';
 
 import '../widgets/custom_icon_button.dart';
 import '../widgets/custom_text_field.dart';
@@ -15,13 +16,14 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final loginStore = LoginStore();
+  late final LoginStore loginStore;
 
   late final ReactionDisposer disposer;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+    loginStore = Provider.of<LoginStore>(context);
     disposer = reaction((_) => loginStore.loginPressed, (loggedIn) {
       if (loginStore.loggedIn) {
         Navigator.of(context).pushReplacement(
